@@ -13,15 +13,15 @@ from sklearn.model_selection import train_test_split
 train_values, test_values = train_test_split( dataset, test_size=0.08, random_state=50)
 train_label_val, test_label_val = train_test_split( labels, test_size=0.08, random_state=50)
 def calculate_SSE(centroid_value_dict, centroid_dict,data):
-    sse = 0
+    error = 0
     for i in centroid_dict:
-        sse_cluster = 0
+        SSE_values = 0
         for j in centroid_dict[i]:
             dp = list(data.iloc[int(j)])
             for a,b in zip(centroid_value_dict[i],dp):
-                sse_cluster += (a-b)**2
-        sse+=sse_cluster
-    return sse   
+                SSE_values =SSE_values+ (a-b)**2
+        error= error+ SSE_values
+    return error   
     
 def Initialize_Centroids(data,K):
     p = data.shape[0]
@@ -93,25 +93,25 @@ def predict_cluster_labels(C, S, labels):
     return cluster_labels
 def accuracy(centroids, centroid_Labels, test_data, true_labels, mode=1):
     y_true = list(true_labels['label']);
-    y_pred = []
+    y_values = []
     for index in range(test_data.shape[0]):
         featureset = test_data.iloc[index]
         if mode==1:
             distances = [np.linalg.norm(featureset - centroids[centroid]) for centroid in centroids]
             classification = distances.index(min(distances))
-            y_pred.append(centroid_Labels[classification])
+            y_values.append(centroid_Labels[classification])
         elif mode==2:
             similarity = [jaccard_similarity(featureset, centroids[centroid]) for centroid in centroids]
             classification = similarity.index(max(similarity))
-            y_pred.append(centroid_Labels[classification]) 
+            y_values.append(centroid_Labels[classification]) 
         elif mode==3:
             similarity = [1 - spatial.distance.cosine(featureset, centroids[centroid]) for centroid in centroids]
             classification = similarity.index(max(similarity))
-            y_pred.append(centroid_Labels[classification])
+            y_values.append(centroid_Labels[classification])
     denominator = test_data.shape[0]
     correctly_classified = 0
-    for i in range(0,len(y_pred)):
-        if y_true[i] == y_pred[i]:
+    for i in range(0,len(y_values)):
+        if y_true[i] == y_values[i]:
             correctly_classified += 1
     accuracy = correctly_classified/denominator
     return accuracy
@@ -137,6 +137,6 @@ Accuracy_Cosine = accuracy(centroids3, cluster_labels_cos,test_values,test_label
 print("Euclidean accuracy:",Accuracy_Euclidean)
 print("Jacard accuracy:",Accuracy_Jaccard)
 print("Cosine accuracy :",Accuracy_Cosine)
-print("Euclidean SSE:",Euclidean_SSE)
-print("Jacard SSE:",Jaccard_SSE)
-print("Cosine SSE :",Cosine_SSE)
+print("Euclidean SSE value:",Euclidean_SSE)
+print("Jacard SSE value:",Jaccard_SSE)
+print("Cosine SSE value:",Cosine_SSE)
